@@ -11,7 +11,7 @@
     </div>
 
     <div *ngIf="display_home;" class="row justify-content-center">
-        <div class="person col-sm-4">
+        <div class="person col-sm-4" (click) = "subject_lessons('maths')" >
             <div class="container_card ">
                 <div class="container-inner">
                     <img class="circle"
@@ -24,7 +24,7 @@
             <!-- <div class="title"></div> -->
         </div>
 
-          <div class="person col-sm-4">
+          <div class="person col-sm-4" (click) = "subject_lessons('physics')">
             <div class="container_card">
               <div class="container-inner">
                 <img
@@ -37,10 +37,10 @@
             <div class="name">Physics</div>
             <!-- <div class="title">Chapter: 16</div> -->
           </div>
-          <div class="person col-sm-4">
+          <div class="person col-sm-4" (click) = "subject_lessons('chemistry')">
             <div class="container_card">
                 <div class="container-inner">
-                  <img class="circle" src="#"/>
+                  <img class="circle" src="assets/chemistry.png"/>
               </div>
             </div>
             <div class="divider"></div>

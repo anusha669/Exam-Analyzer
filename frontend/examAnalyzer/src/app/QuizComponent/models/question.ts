@@ -1,4 +1,5 @@
 import { Option } from './option';
+import { QuestionType } from './questionType';
 
 export class Question {
     id: number;
@@ -6,6 +7,7 @@ export class Question {
     questionTypeId: number;
     options: Option[];
     answered: boolean;
+    questionType : QuestionType;
 
     constructor(data: any) {
         data = data || {};
@@ -16,5 +18,6 @@ export class Question {
         data.options.forEach(o => {
             this.options.push(new Option(o));
         });
+        this.questionType = data.questionType;
     }
 }

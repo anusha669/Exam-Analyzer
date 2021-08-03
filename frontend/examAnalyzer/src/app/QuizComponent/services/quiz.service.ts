@@ -13,7 +13,7 @@ export class QuizService {
   getAll() {
     return [
       { id: 'data/phy.json', name: 'Physics' },
-      { id: 'data/maths.json', name: 'Maths' },
+      { id: 'assets/maths.json', name: 'Maths' },
       { id: 'data/chemi.json', name: 'Chemistry' }
     ];
   }

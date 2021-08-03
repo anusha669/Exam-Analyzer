@@ -4,6 +4,7 @@ import { QuizService } from '../services/quiz.service';
 
 import { Option, Question, Quiz, QuizConfig } from '../models/index';
 
+
 @Component({
   selector: 'app-quiz',
   templateUrl: './quiz.component.html',
@@ -40,6 +41,22 @@ export class QuizComponent implements OnInit {
   endTime: Date;
   ellapsedTime = '00:00';
   duration = '';
+  total_answered: number = 0;
+  submitted: boolean = false;
+  report: boolean = false;
+  answers: any[];
+
+  // charts content
+  title: string;
+  piechart_data1: (string | number)[][];
+  piechart_data2: (string | number)[][];
+  piechart_data3: (string | number)[][];
+  type: string;
+  options: {};
+  height: number;
+  width: number;
+  report_data: (string | number)[][];
+  report_options: { colors : string[], isStacked : boolean };
 
   constructor(private quizService: QuizService) { }
 
@@ -64,7 +81,7 @@ export class QuizComponent implements OnInit {
   tick() {
     const now = new Date();
     const diff = (now.getTime() - this.startTime.getTime()) / 1000;
-    if (diff >= this.config.duration) {
+    if (diff >= this.config.duration && this.submitted == false) {
       this.onSubmit();
     }
     this.ellapsedTime = this.parseTime(diff);
@@ -105,15 +122,61 @@ export class QuizComponent implements OnInit {
   };
 
   isCorrect(question: Question) {
-    return question.options.every(x => x.selected === x.isAnswer) ? 'correct' : 'wrong';
+    // let list_results = [];
+     return question.options.every(x => x.selected === x.isAnswer) ? ('correct') : 'wrong';
   };
 
   onSubmit() {
-    let answers = [];
-    this.quiz.questions.forEach(x => answers.push({ 'quizId': this.quiz.id, 'questionId': x.id, 'answered': x.answered }));
+    this.submitted = true;
+    this.answers = [];
+    this.quiz.questions.forEach(x => this.answers.push({ 'quizId': this.quiz.id, 'questionId': x.id, 'answered': this.isCorrect(x), "type": x.questionType.name}));
 
     // Post your data to the server here. answers contains the questionId and the users' answer.
-    console.log(this.quiz.questions);
-    this.mode = 'result';
+    console.log(this.quiz);
+    console.log(this.answers);
+    this.answers.forEach(x => x.answered == 'correct' ? this.total_answered += 1 : this.total_answered);
+    console.log(this.total_answered);
+    this.display_analysis();
+  }
+
+  display_analysis()
+  {
+      
+      let types_chapters = {"arithmetic": {"total":0, "correct":0}, "algebra": {"total":0, "correct":0}, "geometry": {"total":0, "correct":0}};  // type : [tot, correct_ans]
+      for(let i=0; i< 5; i++)
+      {
+        // console.log(this.answers[i]["type"], types_chapters[this.answers[i]["type"]]["total"]);
+          if(this.answers[i]["answered"] == "correct")
+              types_chapters[this.answers[i]["type"]] ["correct"] += 1;
+          types_chapters[this.answers[i]["type"] ]["total"] += 1;
+      }
+      console.log(types_chapters);
+
+      // this.title = 'googlechart';  
+      this.type = 'PieChart';  
+      this.piechart_data1 = [  
+     ['Correct', types_chapters["arithmetic"]["correct"]],  
+     ['Incorrect', types_chapters["arithmetic"]["total"] - types_chapters["arithmetic"]["correct"]],   
+  ];  
+      this.piechart_data2 = [
+        ['Correct', types_chapters["geometry"]["correct"]],
+        ['Incorrect', types_chapters["geometry"]["total"] - types_chapters["geometry"]["correct"]]
+      ];
+      // this.columnNames = ['Correct', ''];  
+      this.options = {   
+        colors : ["#728dc4", "#3366cc"] ,
+          pieHole: 0.4,  
+      };  
+      this.width = 500;  
+      this.height = 300;  
+
+      this.report_data = [
+        [ "Maths", this.total_answered, 5 - this.total_answered]
+      ];
+      this.report_options = {
+        colors : ["#e8832b", "#eaa970"],
+        isStacked: true
+      };
+      this.mode = 'result';
   }
 }
