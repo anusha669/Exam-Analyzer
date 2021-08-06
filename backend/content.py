@@ -8,16 +8,34 @@ mydb = db.Exam_Analyzer_DB
 math_collection = mydb['Mathematics']
 user_collection = mydb["UserData"]
 
-# practice section
+# login
+def verify_user(userid, password):
+    print(userid, password)
+    q = user_collection.find({"userid":userid,"password":password}, 
+    {"_id":0,"userid":1, "username":1, "class":1, "test_scores":1})
+    return [ele for ele in q]
 
-def all_questions_in_chapter_of_maths(chapterName,num_quest):
-    q = math_collection.aggregate([
+def userdata_update(uid, array, subject):
+    field = "test_scores." + subject
+    q = user_collection.update(
+        {"userid":uid},
+        {'$set':{
+            field: array
+        }}
+    )
+    return q
+# practice section
+def all_questions_in_chapter_of_subject(subjectName,chapterName,num_quest):
+    q = mydb[subjectName].aggregate([
     {'$match':{"ChapterName":chapterName}},
     {'$unwind':"$questionSet"},{"$project": {"_id":0}},
     { "$sample": { "size": num_quest }}
     ])
     return [ele for ele in q]
 
+def get_list_chapters(subject):
+    chapterNames = mydb[subject].find({}, {'_id':0, 'ChapterName':1} )
+    return [chapterName['ChapterName'] for chapterName in chapterNames]
 # exam section
 
 def specific_question_in_chapter_maths(chapterName, num_quest):
@@ -28,7 +46,9 @@ def specific_question_in_chapter_maths(chapterName, num_quest):
             {"$project": {"_id":0}},
             { "$sample": { "size": num_quest } }
     ])
-    ques.append([ele for ele in q])
+    for ele in q:
+        ques.append(ele)
+    # ques.append([ele for ele in q])
     return ques
 
 # learning
