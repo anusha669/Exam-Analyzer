@@ -1,0 +1,17 @@
+<section class="joinnow">
+    <div class="container">
+        <h1 class="text-center">CHAPTERS</h1>
+    
+        <div class="row mt-5" >
+            <div class="col-lg-3 mb-5" *ngFor="let js of chemistry">
+                <div class="box shadow-sm">
+                    <img src="{{js.imgUrl}}" width="100%">
+                    <h4 class="mt-2">{{js.title}}</h4>
+                    <a href={{js.view}} class="btn btn-primary stretched-link ml-2 mr-5">Learn</a>
+                </div>
+    
+            </div>
+        </div>
+    
+    </div>
+    </section>
