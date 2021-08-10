@@ -15,15 +15,16 @@
               
     <div class="white-panel">
       <div class="login-show">
-        <h2>LOGIN</h2>
-        <input type="text" [(ngModel)]="user_id" placeholder="Email">
-        <input type="password" [(ngModel)]="user_password" placeholder="Password">
-        <input type="button" (click)="login_user()" value="Login">
-        <br><br>
-        <div *ngIf = "display_validation" class="alert-danger">
-          Invalid username or password
-        </div>
-
+        <form #userPost = "ngForm" (ngSubmit) = "login_user(userPost.value)">
+          <h2>LOGIN</h2>
+          <input type="email" name="user_id" [(ngModel)]="user_id" placeholder="Email">
+          <input type="password" name="user_password" [(ngModel)]="user_password" placeholder="Password">
+          <button type="submit">Login</button>
+          <br><br>
+          <div *ngIf = "display_validation" class="alert-danger">
+            Invalid username or password
+          </div>
+        </form>
       </div>
       <div class="register-show">
         <h2>REGISTER</h2>

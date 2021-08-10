@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { QuizService } from '../services/quiz.service';
 
 import { Option, Question, Quiz, QuizConfig } from '../models/index';
+import { AppserviceService } from 'src/app/appservice.service';
 
 
 @Component({
@@ -20,7 +21,7 @@ export class QuizComponent implements OnInit {
     'allowBack': true,
     'allowReview': true,
     'autoMove': false,  // if true, it will move to next question automatically when answered.
-    'duration': 300,  // indicates the time (in secs) in which quiz needs to be completed. 0 means unlimited.
+    'duration': 360,  // indicates the time (in secs) in which quiz needs to be completed. 0 means unlimited.
     'pageSize': 1,
     'requiredAll': false,  // indicates if you must answer all the questions before submitting.
     'richText': false,
@@ -55,10 +56,18 @@ export class QuizComponent implements OnInit {
   options: {};
   height: number;
   width: number;
-  report_data: (string | number)[][];
-  report_options: { colors : string[], isStacked : boolean };
+  report_data: any[];
+  report_options: { colors : string[], isStacked : boolean, legend: {position: string, maxLines : number}, hAxis:{minValue:number} };
+  line_chart_data: number[][];
+  options_line_chart: { colors: string[], pointSize: number, pointShape: string, width : number, height: number };
+  axes: {
+    // Adds labels to each axis; they don't have to match the axis names.
+    y: { Temps: { label: string; }; };
+  };
+  percentage: number;
+  expected_mark: any;
 
-  constructor(private quizService: QuizService) { }
+  constructor(private quizService: QuizService, private serv: AppserviceService) { }
 
   ngOnInit() {
     this.quizes = this.quizService.getAll();
@@ -67,6 +76,7 @@ export class QuizComponent implements OnInit {
   }
 
   loadQuiz(quizName: string) {
+    // this.startTimer();
     this.quizService.get(quizName).subscribe(res => {
       this.quiz = new Quiz(res);
       this.pager.count = this.quiz.questions.length;
@@ -81,7 +91,7 @@ export class QuizComponent implements OnInit {
   tick() {
     const now = new Date();
     const diff = (now.getTime() - this.startTime.getTime()) / 1000;
-    if (diff >= this.config.duration && this.submitted == false) {
+    if (diff >= this.config.duration && this.submitted == true) {
       this.onSubmit();
     }
     this.ellapsedTime = this.parseTime(diff);
@@ -129,7 +139,10 @@ export class QuizComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
     this.answers = [];
-    this.quiz.questions.forEach(x => this.answers.push({ 'quizId': this.quiz.id, 'questionId': x.id, 'answered': this.isCorrect(x), "type": x.questionType.name}));
+    this.quiz.questions.forEach(x => {
+            this.answers.push({ 'quizId': this.quiz.id, 'questionId': x.id, 'answered': this.isCorrect(x), "type": x.questionType.name});
+            
+    });
 
     // Post your data to the server here. answers contains the questionId and the users' answer.
     console.log(this.quiz);
@@ -142,7 +155,9 @@ export class QuizComponent implements OnInit {
   display_analysis()
   {
       
-      let types_chapters = {"arithmetic": {"total":0, "correct":0}, "algebra": {"total":0, "correct":0}, "geometry": {"total":0, "correct":0}};  // type : [tot, correct_ans]
+      let types_chapters = {"arithmetic": {"total":0, "correct":0},
+                            "algebra": {"total":0, "correct":0}, 
+                            "geometry": {"total":0, "correct":0}};  // type : [tot, correct_ans]
       for(let i=0; i< 5; i++)
       {
         // console.log(this.answers[i]["type"], types_chapters[this.answers[i]["type"]]["total"]);
@@ -162,21 +177,71 @@ export class QuizComponent implements OnInit {
         ['Correct', types_chapters["geometry"]["correct"]],
         ['Incorrect', types_chapters["geometry"]["total"] - types_chapters["geometry"]["correct"]]
       ];
+      this.piechart_data3 = [
+        ['Correct', types_chapters["algebra"]["correct"]],
+        ['Incorrect', types_chapters["algebra"]["total"] - types_chapters["algebra"]["correct"]]
+      ]
       // this.columnNames = ['Correct', ''];  
       this.options = {   
-        colors : ["#728dc4", "#3366cc"] ,
-          pieHole: 0.4,  
+        colors : ["#728dc4", "#3366cc"],
+          pieHole: 0.4, 
+          // backgroundColor : '#ffe598',
+          fontSize : '30px'
       };  
       this.width = 500;  
       this.height = 300;  
 
       this.report_data = [
-        [ "Maths", this.total_answered, 5 - this.total_answered]
+        // ['Score','Correct answers', 'Incorrect answers',{ role: 'annotation'}],
+        ["Score", this.total_answered, 5 - this.total_answered]
       ];
       this.report_options = {
         colors : ["#e8832b", "#eaa970"],
-        isStacked: true
+        legend: { position: 'top', maxLines: 3 },
+        isStacked: true,
+        hAxis : {minValue: 0}
       };
+
+      this.line_chart_data = [
+        // ["Test","Score"]
+      ]
+      this.percentage = Math.round(this.total_answered*100/6);
+      let user_score = { "maths": this.serv.user_data["test_scores"]["maths"]};
+      let test = 1;
+      this.quizService.get_expected_marks(this.quizName, this.percentage).subscribe(
+        data =>{ this.expected_mark = data["Expected_marks"];
+        console.log(this.expected_mark);
+      }
+      );
+      for(let i=0; i<4; i++)
+      {
+        this.line_chart_data.push([test, user_score["maths"][i]]);
+        test += 1;
+      }
+      this.line_chart_data.push([test, this.percentage]);
+      this.options_line_chart = {
+        colors: [ '#EF851C'],
+        pointSize: 10,
+        pointShape : "circle",
+        width: 900,
+        height: 500
+      }
       this.mode = 'result';
   }
+
+  // timeLeft_: number = 360;
+  // interval_;
+
+// startTimer() {
+//     this.timeLeft_ =  360;
+//     this.interval_ = setInterval(() => {
+//       if(this.timeLeft_ > 0) {
+//         this.timeLeft_ --;
+//       } else {
+//         this.onSubmit();
+//         this.timeLeft_ = 0;
+//       }
+//     },1000)
+//   }
+
 }

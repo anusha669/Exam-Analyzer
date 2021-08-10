@@ -19,18 +19,22 @@ export class ListChapters{
     chapters : string[];
 }
 
-// export class ChapterDetails{
-//     chapterName: string;
-//     completePercent: number;
-//     notes : string;
-//     resumeAt: number;
-// }
+export class ChapterDetails{
+    chapterName: string;
+    completePercent: number;
+    notes : string;
+    resumeAt: number;
+}
 
-// export class UserData{
-//     result : { 
-//             progress : ChapterDetails[];
-//             username : string;
-//             }
-// }
+export class UserData{
+    userid : string;
+    username: string;
+    class : number;
+    test_scores: {
+        maths:number[];
+        physics: number[];
+        chemistry: number[];
+    }
+}
 
 

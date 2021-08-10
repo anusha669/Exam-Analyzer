@@ -7,11 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MathematicsComponent implements OnInit {
 
+  maths
   constructor() { }
 
   ngOnInit(): void {
-  }
-  maths= [
+  this.maths= [
     {
       id: 1,
       title: 'SETS',
@@ -134,6 +134,6 @@ export class MathematicsComponent implements OnInit {
     },
   ]
 }
-
+}
 
 

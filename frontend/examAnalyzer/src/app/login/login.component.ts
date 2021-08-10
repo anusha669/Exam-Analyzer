@@ -44,27 +44,22 @@ export class LoginComponent implements OnInit {
       });
     }
 
-  login_user(){
+  login_user(credentials){
     console.log(this.user_id, this.user_password + "not displayed");
+    console.log(credentials);
     if(this.user_id == "" || this.user_password == "")
         this.display_validation = true;
     else
-        this.router.navigate(['/learn']);
-  //   {  // this.router.navigate(['items'], { relativeTo: this.activatedRoute });
-  //     // this.router.navigate(['/learn']);
-  //       this.serv.login_user(this.user_id, this.user_password).subscribe(
-  //         data => { 
-  //           if(data){
-  //               console.log(this.user_data);
-  //               this.display_validation = false;
-  //               this.user_data = data["result"];
-  //               this.router.navigate(['/learn']);
-  //           }
-  //           else
-  //               this.display_validation = true;
-  //         }
-  //       );
-  //   }
+    {  // this.router.navigate(['items'], { relativeTo: this.activatedRoute });
+      // this.router.navigate(['/learn']);
+        let data = this.serv.login_user(credentials);
+            if(data["result"].length != 0){
+                this.display_validation = false;
+                this.router.navigate(['/learn']);
+            }
+            else
+                this.display_validation = true;
+    }
   }
 }
 

@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { QuestionSet, ListChapters } from './interface';
+import { QuestionSet, ListChapters, UserData } from './interface';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppserviceService {
   headers: HttpHeaders;
+  user_data: UserData;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private route: Router) { }
 
   base_url = "http://127.0.0.1:5000/";
   // @app.route('/practice/maths/<chapterName>/<num_quest>')
@@ -26,10 +28,16 @@ export class AppserviceService {
     return this.http.get<ListChapters>(url);
   }
 
-  // login_user(uid, pwd) : Observable<UserData>
-  // {
-  //   let url = this.base_url + 'login';
-  //   this.headers = new HttpHeaders();
-  //   return this.http.post<UserData>(url, {userid:uid, password: pwd}, { headers: this.headers} );
-  // }
+  login_user(data)
+  {
+    let url = this.base_url + 'login/'+data["user_id"]+'/'+data["user_password"];
+    this.headers = new HttpHeaders();
+    this.http.get(url).subscribe(data => {
+      this.user_data = data["result"][0];
+      console.log(this.user_data);
+      if(this.user_data.class == 1 || this.user_data.class == 2)
+          this.route.navigate(['/learn']);
+      
+    });
+  }
 }

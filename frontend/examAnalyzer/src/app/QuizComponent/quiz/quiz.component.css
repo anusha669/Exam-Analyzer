@@ -38,3 +38,26 @@
         padding: 6px;
     }
 }
+
+.orange{
+    background-color: #ffcb6b;
+    color: black;
+    margin-top: 100px;
+}
+
+progress{
+    height:2rem;
+}
+progress-bar{
+    background-color: darkorange;
+    color: black;
+    font-size: x-large;
+}
+
+.success{
+    color: green
+}
+
+.failed{
+    color: red;
+}
